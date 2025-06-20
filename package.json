@@ -1,4 +1,4 @@
-json
+```json
 {
   "name": "defchar-chat-backend",
   "version": "1.0.0",
@@ -18,3 +18,4 @@ json
     "tsx": "^4.19.1"
   }
 }
+```
