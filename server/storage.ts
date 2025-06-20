@@ -1,4 +1,3 @@
-typescript
 import { users, messages, type User, type InsertUser, type Message, type InsertMessage } from "../shared/schema.js";
 import { db } from "./db.js";
 import { eq } from "drizzle-orm";
@@ -31,11 +30,7 @@ export class DatabaseStorage implements IStorage {
   async createUser(insertUser: InsertUser): Promise<User> {
     const [user] = await db
       .insert(users)
-      .values({
-        ...insertUser,
-        isOnline: true,
-        lastSeen: new Date()
-      })
+      .values(insertUser)
       .returning();
     return user;
   }
@@ -43,10 +38,7 @@ export class DatabaseStorage implements IStorage {
   async updateUserOnlineStatus(id: number, isOnline: boolean): Promise<void> {
     await db
       .update(users)
-      .set({ 
-        isOnline, 
-        lastSeen: new Date() 
-      })
+      .set({ isOnline, lastSeen: new Date() })
       .where(eq(users.id, id));
   }
 
@@ -58,10 +50,8 @@ export class DatabaseStorage implements IStorage {
     const [message] = await db
       .insert(messages)
       .values({
-        content: insertMessage.content,
-        senderId: insertMessage.senderId,
-        senderName: insertMessage.senderName,
-        type: insertMessage.type ?? 'message'
+        ...insertMessage,
+        timestamp: new Date()
       })
       .returning();
     return message;
@@ -76,9 +66,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getMessageCount(): Promise<number> {
-    const result = await db
-      .select({ count: messages.id })
-      .from(messages);
+    const result = await db.select().from(messages);
     return result.length;
   }
 }
