@@ -1,37 +1,15 @@
-import { pgTable, text, serial, integer, boolean, timestamp } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import ws from "ws";
+import * as schema from "../shared/schema.js";
 
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-  isOnline: boolean("is_online").default(false),
-  lastSeen: timestamp("last_seen").defaultNow(),
-});
+neonConfig.webSocketConstructor = ws;
 
-export const messages = pgTable("messages", {
-  id: serial("id").primaryKey(),
-  content: text("content").notNull(),
-  senderId: integer("sender_id").notNull(),
-  senderName: text("sender_name").notNull(),
-  timestamp: timestamp("timestamp").defaultNow(),
-  type: text("type").default("message"), // "message", "system", "join", "leave"
-});
+if (!process.env.DATABASE_URL) {
+  throw new Error(
+    "DATABASE_URL must be set. Did you forget to provision a database?",
+  );
+}
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-});
-
-export const insertMessageSchema = createInsertSchema(messages).pick({
-  content: true,
-  senderId: true,
-  senderName: true,
-  type: true,
-});
-
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
-export type InsertMessage = z.infer<typeof insertMessageSchema>;
-export type Message = typeof messages.$inferSelect;
+export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+export const db = drizzle({ client: pool, schema });
