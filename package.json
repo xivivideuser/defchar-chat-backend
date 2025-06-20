@@ -1,0 +1,20 @@
+json
+{
+  "name": "defchar-chat-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "tsx server/index.ts",
+    "build": "npm install"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
+    "drizzle-orm": "^0.39.1",
+    "drizzle-kit": "^0.30.4",
+    "drizzle-zod": "^0.7.0",
+    "express": "^4.21.2",
+    "ws": "^8.18.0",
+    "zod": "^3.24.2",
+    "tsx": "^4.19.1"
+  }
+}
