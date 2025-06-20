@@ -6,7 +6,8 @@ app.use(express.urlencoded({ extended: false }));
 (async () => {
   const server = await registerRoutes(app);
   
-  const port = process.env.PORT || 3000;
+  // Use port 8080 as shown in Railway
+  const port = 8080;
   server.listen(port, '0.0.0.0', () => {
     console.log(`Server running on port ${port}`);
   });
