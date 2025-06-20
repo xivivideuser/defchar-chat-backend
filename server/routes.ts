@@ -1,10 +1,7 @@
-typescript
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage.js";
-import { insertMessageSchema } from "../shared/schema.js";
-import { z } from "zod";
 
 interface WSClient extends WebSocket {
   userId?: number;
@@ -110,12 +107,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         switch (message.type) {
           case 'join':
             if (message.username) {
-              // Create or get user
               let user = await storage.getUserByUsername(message.username);
               if (!user) {
                 user = await storage.createUser({
                   username: message.username,
-                  password: 'temp' // In a real app, this would be handled properly
+                  password: 'temp'
                 });
               } else {
                 await storage.updateUserOnlineStatus(user.id, true);
@@ -124,7 +120,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
               ws.userId = user.id;
               ws.username = user.username;
               
-              // Send system message about user joining
               const joinMessage = await storage.createMessage({
                 content: `${user.username} joined the chat`,
                 senderId: user.id,
@@ -132,7 +127,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 type: 'join'
               });
               
-              // Broadcast to all clients
               const joinData = JSON.stringify({
                 type: 'system',
                 message: joinMessage,
@@ -156,7 +150,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 type: 'message'
               });
               
-              // Broadcast to all clients
               const messageData = JSON.stringify({
                 type: 'message',
                 message: newMessage
@@ -226,7 +219,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.updateUserOnlineStatus(ws.userId, false);
         typingUsers.delete(ws.username);
         
-        // Send system message about user leaving
         const leaveMessage = await storage.createMessage({
           content: `${ws.username} left the chat`,
           senderId: ws.userId,
@@ -234,7 +226,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           type: 'leave'
         });
         
-        // Broadcast to remaining clients
         const leaveData = JSON.stringify({
           type: 'system',
           message: leaveMessage,
@@ -256,4 +247,3 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   return httpServer;
 }
-```
