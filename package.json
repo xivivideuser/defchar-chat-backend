@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "start": "tsx server/index.ts",
-    "dev": "NODE_ENV=development tsx server/index.ts",
-    "db:push": "drizzle-kit push"
+    "start": "tsx server/index.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
